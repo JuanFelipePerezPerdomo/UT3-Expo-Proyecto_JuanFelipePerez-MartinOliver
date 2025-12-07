@@ -21,8 +21,9 @@ export interface BookFormData {
     title: string;
     author: string;
     numPage: number;
+    synopsis?: string;
     isFavorite?: boolean;
-    imagenUrl?: string;
+    imageUrl?: string;
 }
 
 /**

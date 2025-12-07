@@ -1,4 +1,4 @@
-import{
+import {
     DarkTheme,
     DefaultTheme,
     ThemeProvider,
@@ -8,27 +8,26 @@ import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "react-native";
 import "react-native-reanimated";
 
-export default function RootLayout(){
-    const colorScheme = useColorScheme();
+export default function RootLayout() {
+  const colorScheme = useColorScheme();
 
-    return(
-        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-            <Stack screenOptions={{ headerShown: false}}>
-                <Stack.Screen name = "index"/>
-                <Stack.Screen name = "(tabs)"/>
-                <Stack.Screen
-                    name="book/[id]"
-                    options={{
-                        headerShown: true,
-                        title: "Libro",
-                        presentation: "card"
-                    }}
-                />
-            </Stack>
-            <StatusBar style="auto"/>
-        </ThemeProvider>
-    );
-
+  return (
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="login" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen
+          name="book/[id]"
+          options={{
+            headerShown: true,
+            title: "Book",
+            headerBackTitle: "Atrás",
+            presentation: "card",
+          }}
+        />
+      </Stack>
+      <StatusBar style="auto" />
+    </ThemeProvider>
+  );
 }
-
-    
