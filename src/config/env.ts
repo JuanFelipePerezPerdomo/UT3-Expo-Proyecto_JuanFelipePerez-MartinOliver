@@ -9,11 +9,14 @@
  */
 
 export const env = {
-  // API URLs
-  BOOK_API_URL:
-    process.env.EXPO_PUBLIC_QUOTES_API_URL || "https://openlibrary.org/developers/api",
-  IMAGES_API_URL:
-    process.env.EXPO_PUBLIC_IMAGES_API_URL || "https://openlibrary.org/developers/api/images",
+  // API URLs - Open Library
+  OPEN_LIBRARY_SEARCH_URL:
+    process.env.EXPO_PUBLIC_OPEN_LIBRARY_SEARCH_URL ||
+    "https://openlibrary.org/search.json",
+  OPEN_LIBRARY_COVERS_URL:
+    process.env.EXPO_PUBLIC_OPEN_LIBRARY_COVERS_URL ||
+    "https://covers.openlibrary.org",
+
 
   // Configuración
   API_TIMEOUT: Number(process.env.EXPO_PUBLIC_API_TIMEOUT) || 10000,

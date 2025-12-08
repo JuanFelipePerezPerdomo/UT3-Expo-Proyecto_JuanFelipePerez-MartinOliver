@@ -1,6 +1,7 @@
 import { Button, Card, Input } from "@/src/components/ui";
-import { useTheme } from "@/src/hooks/useTheme";
-import { useSettingsStore, useUserStore } from "@/src/stores";
+import { useTheme } from "@/src/hooks";
+import { getRandomBook } from "@/src/services";
+import { useBooksStore, useSettingsStore, useUserStore } from "@/src/stores";
 import { Spacing, Typography } from "@/src/theme";
 import type { SortBy, ThemeMode } from "@/src/types";
 import { NICKNAME_MAX_LENGTH, validateNickname } from "@/src/utils";
@@ -42,10 +43,12 @@ export default function SettingsScreen() {
     setWelcomeShown,
     setShakeEnabled,
   } = useSettingsStore();
+  const { addBook } = useBooksStore();
 
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState(name);
   const [nameError, setNameError] = useState<string | undefined>();
+  const [isLoadingBook, setIsLoadingBook] = useState(false);
 
   const handleNameChange = (value: string) => {
     setNewName(value);
@@ -89,6 +92,37 @@ export default function SettingsScreen() {
         },
       ]
     );
+  };
+
+  const handleCreateFromOpenLibrary = async () => {
+    setIsLoadingBook(true);
+    try {
+      const bookData = await getRandomBook();
+
+      await addBook(
+        {
+          title: bookData.title,
+          author: bookData.author,
+          numPage: bookData.numPage,
+          synopsis: bookData.synopsis,
+          imageUrl: bookData.imageUrl,
+          isFavorite: false,
+        },
+        name
+      );
+
+      Alert.alert(
+        "¡Éxito!",
+        `Se ha añadido "${bookData.title}" de ${bookData.author} a tu biblioteca.`
+      );
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        "No se pudo obtener el libro. Inténtalo de nuevo."
+      );
+    } finally {
+      setIsLoadingBook(false);
+    }
   };
 
   return (
@@ -236,6 +270,24 @@ export default function SettingsScreen() {
             </View>
           </TouchableOpacity>
         ))}
+      </Card>
+
+      {/* Acciones */}
+      <Card style={styles.section}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          Acciones
+        </Text>
+
+        <Button
+          title={isLoadingBook ? "Buscando libro..." : "📚 Descubrir libro aleatorio"}
+          onPress={handleCreateFromOpenLibrary}
+          disabled={isLoadingBook}
+          variant="outline"
+          fullWidth
+        />
+        <Text style={[styles.actionHint, { color: colors.textTertiary }]}>
+          Añade un libro aleatorio de Open Library a tu colección
+        </Text>
       </Card>
 
       {/* Otros */}
@@ -402,5 +454,10 @@ const styles = StyleSheet.create({
   },
   toggleKnobActive: {
     alignSelf: "flex-end",
+  },
+  actionHint: {
+    ...Typography.caption,
+    textAlign: "center",
+    marginTop: -Spacing.xs,
   },
 });

@@ -1,5 +1,5 @@
 /**
- * Representa una nota en la aplicación
+ * Representa un libro en la aplicación
  */
 export interface Book {
     id: string;
@@ -15,7 +15,7 @@ export interface Book {
 }
 
 /**
- * Datos del formulario para crear/editar nota
+ * Datos del formulario para crear/editar libro
  */
 export interface BookFormData {
     title: string;
@@ -27,7 +27,7 @@ export interface BookFormData {
 }
 
 /**
- * Representación de nota para SQLite
+ * Representación de libro para SQLite
  */
 export interface BookEntity {
     id: string;
