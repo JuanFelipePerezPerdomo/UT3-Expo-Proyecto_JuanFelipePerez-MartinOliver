@@ -32,7 +32,7 @@ export default function SettingsScreen() {
   const { colors } = useTheme();
 
   const { name, updateName, logout } = useUserStore();
-  const { sortBy, theme,welcomeShown, setSortBy, setTheme,setWelcomeShown } = useSettingsStore();
+  const { sortBy, theme, welcomeShown, setSortBy, setTheme, setWelcomeShown } = useSettingsStore();
 
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState(name);
@@ -75,7 +75,7 @@ export default function SettingsScreen() {
           style: "destructive",
           onPress: () => {
             logout();
-            router.replace("/login")
+            router.replace("/login");
           },
         },
       ]

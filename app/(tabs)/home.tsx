@@ -25,7 +25,7 @@ export default function HomeScreen() {
 
     useEffect(() => {
         if (!welcomeShown && userName) {
-        setShowWelcome(true);
+            setShowWelcome(true);
         }
     }, [welcomeShown, userName]);
 
@@ -34,20 +34,19 @@ export default function HomeScreen() {
         setWelcomeShown(true);
     }, [setWelcomeShown]);
 
-
     // esto Calcula los libros ordenados (se recalcula cuando allBooks cambia)
     const books = [...allBooks].sort((a, b) => {
         switch (sortBy) {
-        case "title":
-            return a.title.localeCompare(b.title);
-        case "favorites":
-            if (a.isFavorite === b.isFavorite) {
-            return b.updatedAt - a.updatedAt;
-            }
-            return a.isFavorite ? -1 : 1;
-        case "date":
-        default:
-            return b.updatedAt - a.updatedAt;
+            case "title":
+                return a.title.localeCompare(b.title);
+            case "favorites":
+                if (a.isFavorite === b.isFavorite) {
+                    return b.updatedAt - a.updatedAt;
+                }
+                return a.isFavorite ? -1 : 1;
+            case "date":
+            default:
+                return b.updatedAt - a.updatedAt;
         }
     }); //Estos filtros hay que moverlos de Settings a la pantalla principal en algun momento
 
@@ -143,22 +142,22 @@ export default function HomeScreen() {
                     transparent
                     animationType="fade"
                     onRequestClose={handleCloseWelcome}
-                    >
+                >
                     <View style={styles.welcomeOverlay}>
-                    <View
-                        style={[styles.welcomeCard, { backgroundColor: colors.surface }]}
-                    >
-                        <Text style={styles.welcomeEmoji}>👋</Text>
-                        <Text style={[styles.welcomeTitle, { color: colors.text }]}>
-                            ¡Bienvenido, {userName}!
-                        </Text>
-                        <Text
-                            style={[styles.welcomeMessage, { color: colors.textSecondary }]}
-                    >
-                        Esta es tu app de notas. Puedes crear, editar y organizar tus
-                        notas fácilmente.
-                        </Text>
-                        <Button title="¡Empezar!" onPress={handleCloseWelcome} />
+                        <View
+                            style={[styles.welcomeCard, { backgroundColor: colors.surface }]}
+                        >
+                            <Text style={styles.welcomeEmoji}>👋</Text>
+                            <Text style={[styles.welcomeTitle, { color: colors.text }]}>
+                                ¡Bienvenido, {userName}!
+                            </Text>
+                            <Text
+                                style={[styles.welcomeMessage, { color: colors.textSecondary }]}
+                                >
+                                Esta es tu app de notas. Puedes crear, editar y organizar tus
+                                notas fácilmente.
+                            </Text>
+                            <Button title="¡Empezar!" onPress={handleCloseWelcome} />
                         </View>
                     </View>
                 </Modal>
@@ -187,15 +186,12 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     header: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingHorizontal: Spacing.lg,
-        paddingVertical: Spacing.md,
+        padding: Spacing.lg,
         borderBottomWidth: 1,
     },
     greeting: {
-        ...Typography.body,
+        ...Typography.h2,
+        marginBottom: Spacing.xs,
     },
     noteCount: {
         ...Typography.caption,
@@ -209,30 +205,31 @@ const styles = StyleSheet.create({
         marginBottom: Spacing.lg,
     },
     welcomeOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: Spacing.xl,
-  },
-  welcomeCard: {
-    width: "100%",
-    maxWidth: 320,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.xl,
-    alignItems: "center",
-    gap: Spacing.md,
-  },
-  welcomeEmoji: {
-    fontSize: 48,
-  },
-  welcomeTitle: {
-    ...Typography.h2,
-    textAlign: "center",
-  },
-  welcomeMessage: {
-    ...Typography.body,
-    textAlign: "center",
-    marginBottom: Spacing.sm,
-  },
+        flex: 1,
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: Spacing.lg,
+    },
+    welcomeCard: {
+        borderRadius: BorderRadius.lg,
+        padding: Spacing.xl,
+        width: "100%",
+        maxWidth: 400,
+        alignItems: "center",
+        gap: Spacing.md,
+    },
+    welcomeEmoji: {
+        fontSize: 48,
+        marginBottom: Spacing.sm,
+    },
+    welcomeTitle: {
+        ...Typography.h2,
+        textAlign: "center",
+    },
+    welcomeMessage: {
+        ...Typography.body,
+        textAlign: "center",
+        marginBottom: Spacing.md,
+    },
 });

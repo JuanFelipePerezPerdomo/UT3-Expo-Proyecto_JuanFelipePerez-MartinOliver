@@ -6,7 +6,14 @@ import { Spacing, Typography } from "@/src/theme";
 import { NICKNAME_MAX_LENGTH, validateNickname } from "@/src/utils";
 import { router } from "expo-router";
 import { useCallback, useState } from "react";
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View, } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 export default function LoginScreen() {
   const { colors } = useTheme();
@@ -51,10 +58,10 @@ export default function LoginScreen() {
       >
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.text }]}>
-            📖 App de Libros
+            📝 NotesApp
           </Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            Tu espacio para tomar Libros
+            Tu espacio para tomar notas
           </Text>
         </View>
 
