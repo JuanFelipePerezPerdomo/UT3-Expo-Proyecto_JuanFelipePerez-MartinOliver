@@ -4,14 +4,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-interface SettingsState extends Settings{
-    setTheme: (theme: ThemeMode) => void;
-    setSortBy: (sortBy: SortBy) => void;
-    setWelcomeShown: (shown: boolean) => void;
-    setShakeEnabled: (enabled: boolean) => void;
-    reset: () => void;
-    _hasHydrated: boolean;
-    setHasHydrated: (state: boolean) => void;
+interface SettingsState extends Settings {
+  setTheme: (theme: ThemeMode) => void;
+  setSortBy: (sortBy: SortBy) => void;
+  setWelcomeShown: (shown: boolean) => void;
+  setShakeEnabled: (enabled: boolean) => void;
+  reset: () => void;
+  _hasHydrated: boolean;
+  setHasHydrated: (state: boolean) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(

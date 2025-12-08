@@ -6,106 +6,119 @@ import { BorderRadius, Spacing, Typography } from "@/src/theme";
 import type { Book, BookFormData } from "@/src/types";
 import { router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { FlatList, Modal, StyleSheet, Text, View } from "react-native";
+import {
+    ActivityIndicator,
+    FlatList,
+    Modal,
+    StyleSheet,
+    Text,
+    View,
+} from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function HomeScreen() {
-    const { colors } = useTheme();
+  const { colors } = useTheme();
 
-    const userName = useUserStore((s) => s.name);
-    const sortBy = useSettingsStore((s) => s.sortBy);
-    const welcomeShown = useSettingsStore((s) => s.welcomeShown);
-    const setWelcomeShown = useSettingsStore((s) => s.setWelcomeShown);
+  const userName = useUserStore((s) => s.name);
+  const sortBy = useSettingsStore((s) => s.sortBy);
+  const welcomeShown = useSettingsStore((s) => s.welcomeShown);
+  const setWelcomeShown = useSettingsStore((s) => s.setWelcomeShown);
 
-    // Suscribirse a books directamente para que re-renderice
-    const allBooks = useBooksStore((s) => s.books);
-    const { addBook, deleteBook, toggleFavorite } = useBooksStore();
+  // Suscribirse a books directamente para que re-renderice
+  const allBooks = useBooksStore((s) => s.books);
+  const isLoading = useBooksStore((s) => s.isLoading);
+  const { loadBooks, addBook, deleteBook, toggleFavorite } = useBooksStore();
 
-    // Modal de bienvenida
-    const [showWelcome, setShowWelcome] = useState(false);
+  // Cargar libros desde SQLite al montar
+  useEffect(() => {
+    loadBooks(sortBy);
+  }, [loadBooks, sortBy]);
 
-    useEffect(() => {
-        if (!welcomeShown && userName) {
-        setShowWelcome(true);
+  // Modal de bienvenida
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    if (!welcomeShown && userName) {
+      setShowWelcome(true);
+    }
+  }, [welcomeShown, userName]);
+
+  const handleCloseWelcome = useCallback(() => {
+    setShowWelcome(false);
+    setWelcomeShown(true);
+  }, [setWelcomeShown]);
+
+  // Calcular libros ordenados (se recalcula cuando allBooks cambia)
+  const books = [...allBooks].sort((a, b) => {
+    switch (sortBy) {
+      case "title":
+        return a.title.localeCompare(b.title);
+      case "favorites":
+        if (a.isFavorite === b.isFavorite) {
+          return b.updatedAt - a.updatedAt;
         }
-    }, [welcomeShown, userName]);
+        return a.isFavorite ? -1 : 1;
+      case "date":
+      default:
+        return b.updatedAt - a.updatedAt;
+    }
+  });
 
-    const handleCloseWelcome = useCallback(() => {
-        setShowWelcome(false);
-        setWelcomeShown(true);
-    }, [setWelcomeShown]);
+  const [isFormVisible, setIsFormVisible] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formKey, setFormKey] = useState(0);
 
-    // esto Calcula los libros ordenados (se recalcula cuando allBooks cambia)
-    const books = [...allBooks].sort((a, b) => {
-        switch (sortBy) {
-        case "title":
-            return a.title.localeCompare(b.title);
-        case "favorites":
-            if (a.isFavorite === b.isFavorite) {
-            return b.updatedAt - a.updatedAt;
-            }
-            return a.isFavorite ? -1 : 1;
-        case "date":
-        default:
-            return b.updatedAt - a.updatedAt;
-        }
-    }); //Estos filtros hay que moverlos de Settings a la pantalla principal en algun momento
+  const openForm = useCallback(() => {
+    setFormKey((k) => k + 1); // Fuerza remount del formulario
+    setIsFormVisible(true);
+  }, []);
 
-    const [isFormVisible, setIsFormVisible] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [formKey, setFormKey] = useState(0);
+  const handleAddBook = useCallback(
+    async (formData: BookFormData) => {
+      setIsSubmitting(true);
+      try {
+        addBook(formData, userName);
+        setIsFormVisible(false);
+      } catch (error) {
+        console.error("Error al agregar libro:", error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [addBook, userName]
+  );
 
-    const openForm = useCallback(() => {
-        setFormKey((k) => k + 1); // Fuerza remount del formulario
-        setIsFormVisible(true);
-    }, []);
+  const handleBookPress = useCallback((book: Book) => {
+    router.push(`/book/${book.id}`);
+  }, []);
 
-    const handleAddBook = useCallback(
-        async (formData: BookFormData) => {
-            setIsSubmitting(true);
-            try {
-                addBook(formData, userName);
-                setIsFormVisible(false);
-            } catch (error) {
-                console.error("Error al agregar libro:", error);
-            } finally {
-                setIsSubmitting(false);
-            }
-        },
-        [addBook, userName]
-    );
+  const handleDeleteBook = useCallback(
+    (id: string) => {
+      deleteBook(id);
+    },
+    [deleteBook]
+  );
 
-    const handleBookPress = useCallback((book: Book) => {
-        router.push(`/book/${book.id}`);
-    }, []);
+  const handleToggleFavorite = useCallback(
+    (id: string) => {
+      toggleFavorite(id);
+    },
+    [toggleFavorite]
+  );
 
-    const handleDeleteBook = useCallback(
-        (id: string) => {
-            deleteBook(id);
-        },
-        [deleteBook]
-    );
+  const renderItem = useCallback(
+    ({ item }: { item: Book }) => (
+      <SwipeableBookCard
+        book={item}
+        onPress={() => handleBookPress(item)}
+        onFavoritePress={() => handleToggleFavorite(item.id)}
+        onDelete={() => handleDeleteBook(item.id)}
+      />
+    ),
+    [handleBookPress, handleToggleFavorite, handleDeleteBook]
+  );
 
-    const handleToggleFavorite = useCallback(
-        (id: string) => {
-            toggleFavorite(id);
-        },
-        [toggleFavorite]
-    );
-
-    const renderItem = useCallback(
-        ({ item }: { item: Book }) => (
-            <SwipeableBookCard
-                book={item}
-                onPress={() => handleBookPress(item)}
-                onFavoritePress={() => handleToggleFavorite(item.id)}
-                onDelete={() => handleDeleteBook(item.id)}
-            />
-        ),
-        [handleBookPress, handleToggleFavorite, handleDeleteBook]
-    );
-
-    return (
+  return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         {userName && (
@@ -113,13 +126,17 @@ export default function HomeScreen() {
             <Text style={[styles.greeting, { color: colors.textSecondary }]}>
               Hola, <Text style={{ color: colors.primary }}>{userName}</Text>
             </Text>
-            <Text style={[styles.noteCount, { color: colors.textTertiary }]}>
-              {books.length} {books.length === 1 ? "libro" : "libro"}
+            <Text style={[styles.bookCount, { color: colors.textTertiary }]}>
+              {books.length} {books.length === 1 ? "libro" : "libros"}
             </Text>
           </View>
         )}
 
-        {books.length === 0 ? (
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        ) : books.length === 0 ? (
           <EmptyState
             emoji="📖"
             title="No hay libros"
@@ -155,7 +172,7 @@ export default function HomeScreen() {
               <Text
                 style={[styles.welcomeMessage, { color: colors.textSecondary }]}
               >
-                Esta es tu app de libros. Puedes crear, editar y organizar tus
+                Esta es tu biblioteca personal. Puedes crear, editar y organizar tus
                 libros fácilmente.
               </Text>
               <Button title="¡Empezar!" onPress={handleCloseWelcome} />
@@ -168,7 +185,7 @@ export default function HomeScreen() {
           onClose={() => setIsFormVisible(false)}
         >
           <Text style={[styles.sheetTitle, { color: colors.text }]}>
-            Nueva libro
+            Nuevo libro
           </Text>
           <BookForm
             key={formKey}
@@ -186,6 +203,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -197,7 +219,7 @@ const styles = StyleSheet.create({
   greeting: {
     ...Typography.body,
   },
-  noteCount: {
+  bookCount: {
     ...Typography.caption,
   },
   list: {

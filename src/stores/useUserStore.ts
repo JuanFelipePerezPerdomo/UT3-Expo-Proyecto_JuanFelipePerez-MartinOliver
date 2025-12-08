@@ -1,14 +1,14 @@
-import type { User } from '@/src/types';
+import type { User } from "@/src/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { create } from 'zustand';
+import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-interface UserState extends User{
-    login: (name: string) => void;
-    logout: () => void;
-    updateName: (name: string) => void;
-    _hasHydrated: boolean;
-    setHasHydrated: (state: boolean) => void;
+interface UserState extends User {
+  login: (name: string) => void;
+  logout: () => void;
+  updateName: (name: string) => void;
+  _hasHydrated: boolean;
+  setHasHydrated: (state: boolean) => void;
 }
 
 export const useUserStore = create<UserState>()(
