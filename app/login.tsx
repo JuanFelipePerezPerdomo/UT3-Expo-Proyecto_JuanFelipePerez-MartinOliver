@@ -6,14 +6,7 @@ import { Spacing, Typography } from "@/src/theme";
 import { NICKNAME_MAX_LENGTH, validateNickname } from "@/src/utils";
 import { router } from "expo-router";
 import { useCallback, useState } from "react";
-import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
-} from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View, } from "react-native";
 
 export default function LoginScreen() {
   const { colors } = useTheme();

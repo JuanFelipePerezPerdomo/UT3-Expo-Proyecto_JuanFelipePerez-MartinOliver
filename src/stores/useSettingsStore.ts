@@ -1,25 +1,49 @@
 import type { Settings, SortBy, ThemeMode } from "@/src/types";
 import { DEFAULT_SETTINGS } from "@/src/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
-interface SettingsState extends Settings{
-    setTheme: (theme: ThemeMode) => void;
-    setSortBy: (sortBy: SortBy) => void;
-    setWelcomeShown: (shown: boolean) => void;
-    setShakeEnabled: (enabled: boolean) => void;
-    reset: () => void;
+interface SettingsState extends Settings {
+  setTheme: (theme: ThemeMode) => void;
+  setSortBy: (sortBy: SortBy) => void;
+  setWelcomeShown: (shown: boolean) => void;
+  setShakeEnabled: (enabled: boolean) => void;
+  reset: () => void;
+  _hasHydrated: boolean;
+  setHasHydrated: (state: boolean) => void;
 }
 
-export const useSettingsStore = create<SettingsState>((set) => ({
-    ...DEFAULT_SETTINGS,
+export const useSettingsStore = create<SettingsState>()(
+  persist(
+    (set) => ({
+      ...DEFAULT_SETTINGS,
+      _hasHydrated: false,
 
-    setTheme: (theme) => set({ theme }),
+      setHasHydrated: (state) => set({ _hasHydrated: state }),
 
-    setSortBy: (sortBy) => set({ sortBy }),
+      setTheme: (theme) => set({ theme }),
 
-    setWelcomeShown: (shown) => set({ welcomeShown: shown }),
+      setSortBy: (sortBy) => set({ sortBy }),
 
-    setShakeEnabled: (enabled) => set({ shakeEnabled: enabled }),
+      setWelcomeShown: (shown) => set({ welcomeShown: shown }),
 
-    reset: () => set(DEFAULT_SETTINGS),
-}));
+      setShakeEnabled: (enabled) => set({ shakeEnabled: enabled }),
+
+      reset: () => set(DEFAULT_SETTINGS),
+    }),
+    {
+      name: "settings-storage",
+      storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({
+        theme: state.theme,
+        sortBy: state.sortBy,
+        welcomeShown: state.welcomeShown,
+        shakeEnabled: state.shakeEnabled,
+      }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
+    }
+  )
+);

@@ -1,12 +1,12 @@
 import { BookForm, SwipeableBookCard } from "@/src/components/books";
-import { BottomSheet, EmptyState, FAB } from "@/src/components/ui";
+import { BottomSheet, Button, EmptyState, FAB } from "@/src/components/ui";
 import { useTheme } from "@/src/hooks/useTheme";
 import { useBooksStore, useSettingsStore, useUserStore } from "@/src/stores";
-import { Spacing, Typography } from "@/src/theme";
+import { BorderRadius, Spacing, Typography } from "@/src/theme";
 import type { Book, BookFormData } from "@/src/types";
 import { router } from "expo-router";
-import { useCallback, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { FlatList, Modal, StyleSheet, Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function HomeScreen() {
@@ -14,10 +14,26 @@ export default function HomeScreen() {
 
     const userName = useUserStore((s) => s.name);
     const sortBy = useSettingsStore((s) => s.sortBy);
+    const welcomeShown = useSettingsStore((s) => s.welcomeShown);
+    const setWelcomeShown = useSettingsStore((s) => s.setWelcomeShown);
 
     // Suscribirse a books directamente para que re-renderice
     const allBooks = useBooksStore((s) => s.books);
     const { addBook, deleteBook, toggleFavorite } = useBooksStore();
+
+    const [showWelcome, setShowWelcome] = useState(false);
+
+    useEffect(() => {
+        if (!welcomeShown && userName) {
+        setShowWelcome(true);
+        }
+    }, [welcomeShown, userName]);
+
+    const handleCloseWelcome = useCallback(() => {
+        setShowWelcome(false);
+        setWelcomeShown(true);
+    }, [setWelcomeShown]);
+
 
     // esto Calcula los libros ordenados (se recalcula cuando allBooks cambia)
     const books = [...allBooks].sort((a, b) => {
@@ -121,6 +137,32 @@ export default function HomeScreen() {
 
                 <FAB onPress={openForm} />
 
+                {/* Modal de bienvenida */}
+                <Modal
+                    visible={showWelcome}
+                    transparent
+                    animationType="fade"
+                    onRequestClose={handleCloseWelcome}
+                    >
+                    <View style={styles.welcomeOverlay}>
+                    <View
+                        style={[styles.welcomeCard, { backgroundColor: colors.surface }]}
+                    >
+                        <Text style={styles.welcomeEmoji}>👋</Text>
+                        <Text style={[styles.welcomeTitle, { color: colors.text }]}>
+                            ¡Bienvenido, {userName}!
+                        </Text>
+                        <Text
+                            style={[styles.welcomeMessage, { color: colors.textSecondary }]}
+                    >
+                        Esta es tu app de notas. Puedes crear, editar y organizar tus
+                        notas fácilmente.
+                        </Text>
+                        <Button title="¡Empezar!" onPress={handleCloseWelcome} />
+                        </View>
+                    </View>
+                </Modal>
+
                 <BottomSheet
                     visible={isFormVisible}
                     onClose={() => setIsFormVisible(false)}
@@ -166,4 +208,31 @@ const styles = StyleSheet.create({
         ...Typography.h3,
         marginBottom: Spacing.lg,
     },
+    welcomeOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: Spacing.xl,
+  },
+  welcomeCard: {
+    width: "100%",
+    maxWidth: 320,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.xl,
+    alignItems: "center",
+    gap: Spacing.md,
+  },
+  welcomeEmoji: {
+    fontSize: 48,
+  },
+  welcomeTitle: {
+    ...Typography.h2,
+    textAlign: "center",
+  },
+  welcomeMessage: {
+    ...Typography.body,
+    textAlign: "center",
+    marginBottom: Spacing.sm,
+  },
 });
