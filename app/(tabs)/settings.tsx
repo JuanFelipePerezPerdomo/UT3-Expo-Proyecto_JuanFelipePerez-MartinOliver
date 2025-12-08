@@ -32,8 +32,16 @@ export default function SettingsScreen() {
   const { colors } = useTheme();
 
   const { name, updateName, logout } = useUserStore();
-  const { sortBy, theme, welcomeShown, setSortBy, setTheme, setWelcomeShown } =
-    useSettingsStore();
+  const {
+    sortBy,
+    theme,
+    welcomeShown,
+    shakeEnabled,
+    setSortBy,
+    setTheme,
+    setWelcomeShown,
+    setShakeEnabled,
+  } = useSettingsStore();
 
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState(name);
@@ -76,7 +84,7 @@ export default function SettingsScreen() {
           style: "destructive",
           onPress: () => {
             logout();
-            router.replace("/login")
+            router.replace("/login");
           },
         },
       ]
@@ -147,7 +155,7 @@ export default function SettingsScreen() {
       {/* Ordenación */}
       <Card style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          Ordenar Libros por
+          Ordenar libros por
         </Text>
 
         {SORT_OPTIONS.map((option) => (
@@ -234,6 +242,39 @@ export default function SettingsScreen() {
       <Card style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Otros</Text>
 
+        {/* Toggle Shake-to-create */}
+        <TouchableOpacity
+          style={styles.optionRow}
+          onPress={() => setShakeEnabled(!shakeEnabled)}
+        >
+          <View style={styles.optionInfo}>
+            <Ionicons
+              name="phone-portrait-outline"
+              size={20}
+              color={colors.icon}
+            />
+            <Text style={[styles.optionLabel, { color: colors.text }]}>
+              Shake para crear libro
+            </Text>
+          </View>
+          <View
+            style={[
+              styles.toggle,
+              {
+                backgroundColor: shakeEnabled ? colors.primary : colors.border,
+              },
+            ]}
+          >
+            <View
+              style={[
+                styles.toggleKnob,
+                shakeEnabled && styles.toggleKnobActive,
+              ]}
+            />
+          </View>
+        </TouchableOpacity>
+
+        {/* Reset bienvenida */}
         <TouchableOpacity
           style={styles.optionRow}
           onPress={() => setWelcomeShown(false)}
@@ -345,5 +386,21 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     borderRadius: 6,
+  },
+  toggle: {
+    width: 50,
+    height: 28,
+    borderRadius: 14,
+    padding: 2,
+    justifyContent: "center",
+  },
+  toggleKnob: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
+  },
+  toggleKnobActive: {
+    alignSelf: "flex-end",
   },
 });

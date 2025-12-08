@@ -1,18 +1,18 @@
 import { BookForm, SwipeableBookCard } from "@/src/components/books";
 import { BottomSheet, Button, EmptyState, FAB } from "@/src/components/ui";
-import { useTheme } from "@/src/hooks/useTheme";
+import { useShakeDetector, useTheme } from "@/src/hooks";
 import { useBooksStore, useSettingsStore, useUserStore } from "@/src/stores";
 import { BorderRadius, Spacing, Typography } from "@/src/theme";
 import type { Book, BookFormData } from "@/src/types";
 import { router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    Modal,
-    StyleSheet,
-    Text,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Modal,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
@@ -23,6 +23,7 @@ export default function HomeScreen() {
   const sortBy = useSettingsStore((s) => s.sortBy);
   const welcomeShown = useSettingsStore((s) => s.welcomeShown);
   const setWelcomeShown = useSettingsStore((s) => s.setWelcomeShown);
+  const shakeEnabled = useSettingsStore((s) => s.shakeEnabled);
 
   // Suscribirse a books directamente para que re-renderice
   const allBooks = useBooksStore((s) => s.books);
@@ -73,11 +74,17 @@ export default function HomeScreen() {
     setIsFormVisible(true);
   }, []);
 
+  // Shake-to-create: abre el formulario al agitar el dispositivo
+  useShakeDetector({
+    enabled: shakeEnabled,
+    onShake: openForm,
+  });
+
   const handleAddBook = useCallback(
     async (formData: BookFormData) => {
       setIsSubmitting(true);
       try {
-        addBook(formData, userName);
+        await addBook(formData, userName);
         setIsFormVisible(false);
       } catch (error) {
         console.error("Error al agregar libro:", error);
