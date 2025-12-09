@@ -17,7 +17,6 @@ export const env = {
     process.env.EXPO_PUBLIC_OPEN_LIBRARY_COVERS_URL ||
     "https://covers.openlibrary.org",
 
-
   // Configuración
   API_TIMEOUT: Number(process.env.EXPO_PUBLIC_API_TIMEOUT) || 10000,
 } as const;

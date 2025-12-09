@@ -1,5 +1,6 @@
 import { env } from "@/src/config";
 import { apiClient, getApiErrorMessage } from "./client";
+import { getCoverUrl } from "./imageApi";
 
 /**
  * Respuesta de la API de búsqueda de Open Library
@@ -34,7 +35,7 @@ export interface OpenLibraryBook {
   author: string;
   numPage: number;
   synopsis: string;
-  imageUrl?: string;
+  imageUrl: string;
 }
 
 /**
@@ -64,21 +65,6 @@ const RANDOM_SUBJECTS = [
 ];
 
 /**
- * Genera una URL de portada de Open Library
- *
- * @param coverId - ID de la portada
- * @param size - Tamaño: S (pequeño), M (mediano), L (grande)
- * @returns URL de la portada o undefined si no hay coverId
- */
-export function getOpenLibraryCoverUrl(
-  coverId?: number,
-  size: "S" | "M" | "L" = "M"
-): string | undefined {
-  if (!coverId) return undefined;
-  return `${env.OPEN_LIBRARY_COVERS_URL}/b/id/${coverId}-${size}.jpg`;
-}
-
-/**
  * Obtiene un tema aleatorio de la lista de temas populares
  */
 function getRandomSubject(): string {
@@ -90,6 +76,7 @@ function getRandomSubject(): string {
  * Obtiene un libro aleatorio de Open Library
  *
  * Busca en un tema aleatorio y selecciona un libro al azar de los resultados.
+ * Solo devuelve libros que tienen portada disponible.
  *
  * @returns Promesa con los datos del libro
  * @throws Error si falla la petición
@@ -98,17 +85,16 @@ export async function getRandomBook(): Promise<OpenLibraryBook> {
   try {
     const subject = getRandomSubject();
     // Usar sort=random para obtener resultados aleatorios
-    // Limitar a 50 resultados para eficiencia
+    // Limitar a 100 resultados para tener más opciones con portada
     const response = await apiClient.get<OpenLibrarySearchResponse>(
       env.OPEN_LIBRARY_SEARCH_URL,
       {
         params: {
           subject: subject,
           sort: "random",
-          limit: 50,
+          limit: 100,
           fields:
             "key,title,author_name,first_publish_year,number_of_pages_median,cover_i,first_sentence,subject",
-          lang: "es", // Preferencia por español, pero no excluye otros
         },
       }
     );
@@ -119,18 +105,22 @@ export async function getRandomBook(): Promise<OpenLibraryBook> {
       throw new Error("No se encontraron libros");
     }
 
-    // Filtrar libros que tengan al menos título y preferiblemente portada
-    const validBooks = docs.filter(
-      (book) => book.title && book.title.trim().length > 0
+    // Filtrar libros que tengan título Y portada (cover_i)
+    const booksWithCover = docs.filter(
+      (book) => 
+        book.title && 
+        book.title.trim().length > 0 && 
+        book.cover_i !== undefined
     );
 
-    if (validBooks.length === 0) {
-      throw new Error("No se encontraron libros válidos");
+    if (booksWithCover.length === 0) {
+      // Si no hay libros con portada, buscar en otro tema
+      throw new Error("No se encontraron libros con portada, intenta de nuevo");
     }
 
-    // Seleccionar un libro aleatorio de los resultados
-    const randomIndex = Math.floor(Math.random() * validBooks.length);
-    const selectedBook = validBooks[randomIndex];
+    // Seleccionar un libro aleatorio de los que tienen portada
+    const randomIndex = Math.floor(Math.random() * booksWithCover.length);
+    const selectedBook = booksWithCover[randomIndex];
 
     // Construir sinopsis a partir de la primera oración o temas
     let synopsis = "";
@@ -146,7 +136,7 @@ export async function getRandomBook(): Promise<OpenLibraryBook> {
       author: selectedBook.author_name?.[0] || "Autor desconocido",
       numPage: selectedBook.number_of_pages_median || 200,
       synopsis: synopsis || "Sin sinopsis disponible",
-      imageUrl: getOpenLibraryCoverUrl(selectedBook.cover_i, "M"),
+      imageUrl: getCoverUrl(selectedBook.cover_i!, "M"),
     };
   } catch (error) {
     const message = getApiErrorMessage(error);
@@ -160,12 +150,14 @@ export async function getRandomBook(): Promise<OpenLibraryBook> {
  *
  * @param query - Término de búsqueda
  * @param limit - Número máximo de resultados (default: 10)
+ * @param onlyWithCover - Si solo devolver libros con portada (default: true)
  * @returns Promesa con array de libros
  * @throws Error si falla la petición
  */
 export async function searchBooks(
   query: string,
-  limit: number = 10
+  limit: number = 10,
+  onlyWithCover: boolean = true
 ): Promise<OpenLibraryBook[]> {
   try {
     const response = await apiClient.get<OpenLibrarySearchResponse>(
@@ -173,7 +165,7 @@ export async function searchBooks(
       {
         params: {
           q: query,
-          limit,
+          limit: onlyWithCover ? limit * 3 : limit, // Pedir más si filtramos por portada
           fields:
             "key,title,author_name,first_publish_year,number_of_pages_median,cover_i,first_sentence,subject",
         },
@@ -186,18 +178,26 @@ export async function searchBooks(
       return [];
     }
 
-    return docs
-      .filter((book) => book.title && book.title.trim().length > 0)
-      .map((book) => ({
-        title: book.title,
-        author: book.author_name?.[0] || "Autor desconocido",
-        numPage: book.number_of_pages_median || 200,
-        synopsis:
-          book.first_sentence?.[0] ||
-          (book.subject ? `Temas: ${book.subject.slice(0, 5).join(", ")}` : "") ||
-          "Sin sinopsis disponible",
-        imageUrl: getOpenLibraryCoverUrl(book.cover_i, "M"),
-      }));
+    let filteredDocs = docs.filter(
+      (book) => book.title && book.title.trim().length > 0
+    );
+
+    if (onlyWithCover) {
+      filteredDocs = filteredDocs.filter((book) => book.cover_i !== undefined);
+    }
+
+    return filteredDocs.slice(0, limit).map((book) => ({
+      title: book.title,
+      author: book.author_name?.[0] || "Autor desconocido",
+      numPage: book.number_of_pages_median || 200,
+      synopsis:
+        book.first_sentence?.[0] ||
+        (book.subject ? `Temas: ${book.subject.slice(0, 5).join(", ")}` : "") ||
+        "Sin sinopsis disponible",
+      imageUrl: book.cover_i 
+        ? getCoverUrl(book.cover_i, "M") 
+        : "",
+    }));
   } catch (error) {
     const message = getApiErrorMessage(error);
     console.error("[OpenLibraryAPI] Failed to search books:", message);
