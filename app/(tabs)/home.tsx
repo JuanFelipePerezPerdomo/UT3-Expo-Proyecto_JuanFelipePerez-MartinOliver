@@ -7,14 +7,18 @@ import type { Book, BookFormData } from "@/src/types";
 import { router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
-  ActivityIndicator,
-  FlatList,
-  Modal,
-  StyleSheet,
-  Text,
-  View,
+    ActivityIndicator,
+    FlatList,
+    Modal,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import Animated, {
+    FadeInDown,
+    LinearTransition,
+} from "react-native-reanimated";
 
 export default function HomeScreen() {
   const { colors } = useTheme();
@@ -114,13 +118,20 @@ export default function HomeScreen() {
   );
 
   const renderItem = useCallback(
-    ({ item }: { item: Book }) => (
-      <SwipeableBookCard
-        book={item}
-        onPress={() => handleBookPress(item)}
-        onFavoritePress={() => handleToggleFavorite(item.id)}
-        onDelete={() => handleDeleteBook(item.id)}
-      />
+    ({ item, index }: { item: Book; index: number }) => (
+      <Animated.View
+        entering={FadeInDown.delay(index * 50)
+          .duration(300)
+          .springify()}
+        layout={LinearTransition.springify().damping(15)}
+      >
+        <SwipeableBookCard
+          book={item}
+          onPress={() => handleBookPress(item)}
+          onFavoritePress={() => handleToggleFavorite(item.id)}
+          onDelete={() => handleDeleteBook(item.id)}
+        />
+      </Animated.View>
     ),
     [handleBookPress, handleToggleFavorite, handleDeleteBook]
   );

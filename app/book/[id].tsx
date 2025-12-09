@@ -5,11 +5,11 @@ import { useBooksStore } from "@/src/stores";
 import { Spacing, Typography } from "@/src/theme";
 import type { BookFormData } from "@/src/types";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useCallback, useLayoutEffect, useState } from "react";
 import {
     Alert,
-    Image,
     ScrollView,
     StyleSheet,
     Text,
@@ -126,7 +126,9 @@ export default function BookDetailScreen() {
           <Image
             source={{ uri: book.imageUrl }}
             style={styles.image}
-            resizeMode="cover"
+            contentFit="cover"
+            transition={300}
+            placeholder={{ blurhash: "L6PZfSi_.AyE_3t7t7R**0o#DgR4" }}
           />
         )}
 
@@ -142,7 +144,7 @@ export default function BookDetailScreen() {
             </Text>
           </View>
 
-          {book.numPage && (
+          {book.numPage && book.numPage > 0 && (
             <View style={styles.pagesRow}>
               <Ionicons name="book-outline" size={20} color={colors.icon} />
               <Text style={[styles.pages, { color: colors.textSecondary }]}>
@@ -216,9 +218,10 @@ export default function BookDetailScreen() {
           Editar libro
         </Text>
         <BookForm
-                  book={book}
-                  onSubmit={handleUpdate}
-                  onCancel={() => setIsEditVisible(false)} isLoading={false}        />
+          book={book}
+          onSubmit={handleUpdate}
+          onCancel={() => setIsEditVisible(false)}
+        />
       </BottomSheet>
     </View>
   );
