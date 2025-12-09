@@ -1,12 +1,14 @@
 import { useTheme } from "@/src/hooks/useTheme";
 import { BorderRadius, Spacing } from "@/src/theme";
 import {
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    StyleSheet,
-    TouchableWithoutFeedback,
-    View,
+  Keyboard,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -17,45 +19,58 @@ interface BottomSheetProps {
 }
 
 export function BottomSheet({ visible, onClose, children }: BottomSheetProps) {
+  const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
 
-    const { colors } = useTheme();
-    const insets = useSafeAreaInsets();
+  // Padding inferior: safe area + tab bar + extra espacio
+  const bottomPadding = 0
 
-    // Altura del tab bar en iOS es ~49px + safe area
-    const bottomPadding = insets.bottom > 0 ? insets.bottom + 49 : 24;
+  return (
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent
+      onRequestClose={onClose}
+    >
+      <View style={styles.container}>
+        <TouchableWithoutFeedback onPress={onClose}>
+          <View style={styles.overlay} />
+        </TouchableWithoutFeedback>
 
-    return (
-        <Modal
-        visible={visible}
-        animationType="slide"
-        transparent
-        onRequestClose={onClose}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.keyboardView}
         >
-        <View style={styles.container}>
-            <TouchableWithoutFeedback onPress={onClose}>
-            <View style={styles.overlay} />
-            </TouchableWithoutFeedback>
-
-            <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={styles.keyboardView}
+          <View
+            style={[
+              styles.sheet,
+              {
+                backgroundColor: colors.background,
+                maxHeight: "100%",
+              },
+            ]}
+          >
+            <View style={[styles.handle, { backgroundColor: colors.border }]} />
+            
+            <ScrollView
+              style={styles.scrollView}
+              contentContainerStyle={[
+                styles.content,
+                { paddingBottom: bottomPadding },
+              ]}
+              showsVerticalScrollIndicator={true}
+              keyboardShouldPersistTaps="handled"
+              bounces={true}
             >
-            <View
-                style={[
-                styles.sheet,
-                {
-                    backgroundColor: colors.background,
-                    paddingBottom: bottomPadding,
-                },
-                ]}
-            >
-                <View style={[styles.handle, { backgroundColor: colors.border }]} />
-                <View style={styles.content}>{children}</View>
-            </View>
-            </KeyboardAvoidingView>
-        </View>
-        </Modal>
-    );
+              <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View>{children}</View>
+              </TouchableWithoutFeedback>
+            </ScrollView>
+          </View>
+        </KeyboardAvoidingView>
+      </View>
+    </Modal>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -81,6 +96,9 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginTop: Spacing.md,
     marginBottom: Spacing.md,
+  },
+  scrollView: {
+    flexGrow: 0,
   },
   content: {
     paddingHorizontal: Spacing.xl,

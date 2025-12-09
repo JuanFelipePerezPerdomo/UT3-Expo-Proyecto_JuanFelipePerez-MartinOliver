@@ -1,11 +1,11 @@
 import type { Book } from "@/src/types";
 import { useEffect } from "react";
 import Animated, {
-    FadeInDown,
-    useAnimatedStyle,
-    useSharedValue,
-    withSequence,
-    withSpring,
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withSpring,
 } from "react-native-reanimated";
 import { BookCard } from "./BookCard";
 
@@ -33,8 +33,8 @@ export function AnimatedBookCard({
   useEffect(() => {
     if (book.isFavorite !== prevIsFavorite.value) {
       scale.value = withSequence(
-        withSpring(1.05, { damping: 10, stiffness: 400 }),
-        withSpring(1, { damping: 10, stiffness: 400 })
+        withSpring(1.08, { damping: 8, stiffness: 400 }),
+        withSpring(1, { damping: 8, stiffness: 400 })
       );
       prevIsFavorite.value = book.isFavorite;
     }
@@ -46,10 +46,10 @@ export function AnimatedBookCard({
 
   return (
     <Animated.View
-      entering={FadeInDown.delay(index * 50)
-        .duration(300)
+      entering={FadeInDown.delay(index * 40)
+        .duration(400)
         .springify()
-        .damping(15)}
+        .damping(12)}
       style={animatedStyle}
     >
       <BookCard

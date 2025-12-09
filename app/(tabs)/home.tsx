@@ -1,4 +1,4 @@
-import { BookForm, SwipeableBookCard } from "@/src/components/books";
+import { AnimatedBookCard, BookForm, GRID_GAP, GRID_PADDING } from "@/src/components/books";
 import { BottomSheet, Button, EmptyState, FAB } from "@/src/components/ui";
 import { useShakeDetector, useTheme } from "@/src/hooks";
 import { useBooksStore, useSettingsStore, useUserStore } from "@/src/stores";
@@ -7,18 +7,13 @@ import type { Book, BookFormData } from "@/src/types";
 import { router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    Modal,
-    StyleSheet,
-    Text,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Modal,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import Animated, {
-    FadeInDown,
-    LinearTransition,
-} from "react-native-reanimated";
 
 export default function HomeScreen() {
   const { colors } = useTheme();
@@ -103,13 +98,6 @@ export default function HomeScreen() {
     router.push(`/book/${book.id}`);
   }, []);
 
-  const handleDeleteBook = useCallback(
-    (id: string) => {
-      deleteBook(id);
-    },
-    [deleteBook]
-  );
-
   const handleToggleFavorite = useCallback(
     (id: string) => {
       toggleFavorite(id);
@@ -119,101 +107,95 @@ export default function HomeScreen() {
 
   const renderItem = useCallback(
     ({ item, index }: { item: Book; index: number }) => (
-      <Animated.View
-        entering={FadeInDown.delay(index * 50)
-          .duration(300)
-          .springify()}
-        layout={LinearTransition.springify().damping(15)}
-      >
-        <SwipeableBookCard
-          book={item}
-          onPress={() => handleBookPress(item)}
-          onFavoritePress={() => handleToggleFavorite(item.id)}
-          onDelete={() => handleDeleteBook(item.id)}
-        />
-      </Animated.View>
+      <AnimatedBookCard
+        book={item}
+        index={index}
+        onPress={() => handleBookPress(item)}
+        onFavoritePress={() => handleToggleFavorite(item.id)}
+      />
     ),
-    [handleBookPress, handleToggleFavorite, handleDeleteBook]
+    [handleBookPress, handleToggleFavorite]
   );
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        {userName && (
-          <View style={[styles.header, { borderBottomColor: colors.border }]}>
-            <Text style={[styles.greeting, { color: colors.textSecondary }]}>
-              Hola, <Text style={{ color: colors.primary }}>{userName}</Text>
-            </Text>
-            <Text style={[styles.bookCount, { color: colors.textTertiary }]}>
-              {books.length} {books.length === 1 ? "libro" : "libros"}
-            </Text>
-          </View>
-        )}
-
-        {isLoading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={colors.primary} />
-          </View>
-        ) : books.length === 0 ? (
-          <EmptyState
-            emoji="📖"
-            title="No hay libros"
-            message="Pulsa el botón + para crear tu primer libro"
-          />
-        ) : (
-          <FlatList
-            data={books}
-            keyExtractor={(item) => item.id}
-            renderItem={renderItem}
-            contentContainerStyle={styles.list}
-            showsVerticalScrollIndicator={false}
-          />
-        )}
-
-        <FAB onPress={openForm} />
-
-        {/* Modal de bienvenida */}
-        <Modal
-          visible={showWelcome}
-          transparent
-          animationType="fade"
-          onRequestClose={handleCloseWelcome}
-        >
-          <View style={styles.welcomeOverlay}>
-            <View
-              style={[styles.welcomeCard, { backgroundColor: colors.surface }]}
-            >
-              <Text style={styles.welcomeEmoji}>👋</Text>
-              <Text style={[styles.welcomeTitle, { color: colors.text }]}>
-                ¡Bienvenido, {userName}!
-              </Text>
-              <Text
-                style={[styles.welcomeMessage, { color: colors.textSecondary }]}
-              >
-                Esta es tu biblioteca personal. Puedes crear, editar y organizar tus
-                libros fácilmente.
-              </Text>
-              <Button title="¡Empezar!" onPress={handleCloseWelcome} />
-            </View>
-          </View>
-        </Modal>
-
-        <BottomSheet
-          visible={isFormVisible}
-          onClose={() => setIsFormVisible(false)}
-        >
-          <Text style={[styles.sheetTitle, { color: colors.text }]}>
-            Nuevo libro
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* Subheader con saludo y contador */}
+      {userName && (
+        <View style={[styles.subHeader, { borderBottomColor: colors.border }]}>
+          <Text style={[styles.greeting, { color: colors.textSecondary }]}>
+            Hola, <Text style={{ color: colors.primary }}>{userName}</Text>
           </Text>
-          <BookForm
-            key={formKey}
-            onSubmit={handleAddBook}
-            onCancel={() => setIsFormVisible(false)}
-            isLoading={isSubmitting}
-          />
-        </BottomSheet>
-      </View>
-    </GestureHandlerRootView>
+          <Text style={[styles.bookCount, { color: colors.textTertiary }]}>
+            {books.length} {books.length === 1 ? "libro" : "libros"}
+          </Text>
+        </View>
+      )}
+
+      {isLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : books.length === 0 ? (
+        <EmptyState
+          emoji="📖"
+          title="No hay libros"
+          message="Pulsa el botón + para crear tu primer libro"
+        />
+      ) : (
+        <FlatList
+          data={books}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          numColumns={3}
+          columnWrapperStyle={styles.row}
+          contentContainerStyle={styles.grid}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
+
+      <FAB onPress={openForm} />
+
+      {/* Modal de bienvenida */}
+      <Modal
+        visible={showWelcome}
+        transparent
+        animationType="fade"
+        onRequestClose={handleCloseWelcome}
+      >
+        <View style={styles.welcomeOverlay}>
+          <View
+            style={[styles.welcomeCard, { backgroundColor: colors.surface }]}
+          >
+            <Text style={styles.welcomeEmoji}>👋</Text>
+            <Text style={[styles.welcomeTitle, { color: colors.text }]}>
+              ¡Bienvenido, {userName}!
+            </Text>
+            <Text
+              style={[styles.welcomeMessage, { color: colors.textSecondary }]}
+            >
+              Esta es tu biblioteca personal. Puedes crear, editar y organizar tus
+              libros fácilmente.
+            </Text>
+            <Button title="¡Empezar!" onPress={handleCloseWelcome} />
+          </View>
+        </View>
+      </Modal>
+
+      <BottomSheet
+        visible={isFormVisible}
+        onClose={() => setIsFormVisible(false)}
+      >
+        <Text style={[styles.sheetTitle, { color: colors.text }]}>
+          Nuevo libro
+        </Text>
+        <BookForm
+          key={formKey}
+          onSubmit={handleAddBook}
+          onCancel={() => setIsFormVisible(false)}
+          isLoading={isSubmitting}
+        />
+      </BottomSheet>
+    </View>
   );
 }
 
@@ -226,12 +208,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  header: {
+  subHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
+    paddingVertical: Spacing.sm,
     borderBottomWidth: 1,
   },
   greeting: {
@@ -240,9 +222,15 @@ const styles = StyleSheet.create({
   bookCount: {
     ...Typography.caption,
   },
-  list: {
-    padding: Spacing.lg,
-    gap: Spacing.md,
+  grid: {
+    paddingHorizontal: GRID_PADDING,
+    paddingTop: GRID_PADDING,
+    paddingBottom: 100, // Espacio para el FAB
+  },
+  row: {
+    justifyContent: "flex-start",
+    gap: GRID_GAP,
+    marginBottom: GRID_GAP,
   },
   sheetTitle: {
     ...Typography.h3,

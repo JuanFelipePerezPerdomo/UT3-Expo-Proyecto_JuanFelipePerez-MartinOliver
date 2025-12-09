@@ -9,12 +9,12 @@ import { Image } from "expo-image";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useCallback, useLayoutEffect, useState } from "react";
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 export default function BookDetailScreen() {
@@ -122,15 +122,17 @@ export default function BookDetailScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {book.imageUrl && (
-          <Image
-            source={{ uri: book.imageUrl }}
-            style={styles.image}
-            contentFit="cover"
-            transition={300}
-            placeholder={{ blurhash: "L6PZfSi_.AyE_3t7t7R**0o#DgR4" }}
-          />
-        )}
+        {book.imageUrl ? (
+          <View style={[styles.imageContainer, { backgroundColor: colors.surfaceVariant }]}>
+            <Image
+              source={{ uri: book.imageUrl }}
+              style={styles.image}
+              contentFit="cover"
+              transition={300}
+              placeholder={{ blurhash: "L6PZfSi_.AyE_3t7t7R**0o#DgR4" }}
+            />
+          </View>
+        ) : null}
 
         <Card style={styles.card}>
           <Text style={[styles.title, { color: colors.text }]}>
@@ -144,17 +146,17 @@ export default function BookDetailScreen() {
             </Text>
           </View>
 
-          {book.numPage && book.numPage > 0 && (
+          {book.numPage > 0 ? (
             <View style={styles.pagesRow}>
               <Ionicons name="book-outline" size={20} color={colors.icon} />
               <Text style={[styles.pages, { color: colors.textSecondary }]}>
                 {book.numPage} {book.numPage === 1 ? "página" : "páginas"}
               </Text>
             </View>
-          )}
+          ) : null}
 
-          {book.synopsis && book.synopsis.length > 0 && (
-            <>
+          {book.synopsis && book.synopsis.length > 0 ? (
+            <View>
               <View style={[styles.divider, { backgroundColor: colors.border }]} />
               <Text style={[styles.synopsisLabel, { color: colors.textTertiary }]}>
                 Sinopsis
@@ -162,8 +164,8 @@ export default function BookDetailScreen() {
               <Text style={[styles.synopsis, { color: colors.textSecondary }]}>
                 {book.synopsis}
               </Text>
-            </>
-          )}
+            </View>
+          ) : null}
 
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
@@ -182,14 +184,14 @@ export default function BookDetailScreen() {
               </Text>
             </View>
 
-            {book.updatedAt !== book.createdAt && (
+            {book.updatedAt !== book.createdAt ? (
               <View style={styles.metaRow}>
                 <Ionicons name="create-outline" size={16} color={colors.icon} />
                 <Text style={[styles.metaText, { color: colors.textTertiary }]}>
                   Editado: {formatDate(book.updatedAt)}
                 </Text>
               </View>
-            )}
+            ) : null}
           </View>
         </Card>
 
@@ -204,7 +206,7 @@ export default function BookDetailScreen() {
             title="Eliminar"
             onPress={handleDelete}
             variant="outline"
-            style={{ ...styles.actionButton, borderColor: colors.error }}
+            style={[styles.actionButton, { borderColor: colors.error }]}
             textStyle={{ color: colors.error }}
           />
         </View>
@@ -233,12 +235,18 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: Spacing.lg,
+    paddingBottom: 50,
+  },
+  imageContainer: {
+    width: "100%",
+    height: 350,
+    borderRadius: 12,
+    marginBottom: Spacing.lg,
+    overflow: "hidden",
   },
   image: {
     width: "100%",
-    height: 200,
-    borderRadius: 12,
-    marginBottom: Spacing.lg,
+    height: "100%",
   },
   card: {
     gap: Spacing.md,
@@ -267,6 +275,7 @@ const styles = StyleSheet.create({
     ...Typography.label,
     textTransform: "uppercase",
     fontSize: 12,
+    marginBottom: Spacing.xs,
   },
   synopsis: {
     ...Typography.body,

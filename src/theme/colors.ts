@@ -1,68 +1,71 @@
 /**
  * Paleta de colores para tema claro y oscuro
+ * 
+ * Tema claro: Tonos ahuesados/crema (estilo papel de libro)
+ * Tema oscuro: Tonos azulados (más suave que negro puro)
  */
 
 export const Colors = {
   light: {
-    // Fondos
-    background: "#FFFFFF",
-    surface: "#F5F5F5",
-    surfaceVariant: "#E8E8E8",
+    // Fondos - Tonos ahuesados/crema
+    background: "#FAF8F5",
+    surface: "#FFFFFF",
+    surfaceVariant: "#F5F0E8",
 
     // Textos
-    text: "#1A1A1A",
-    textSecondary: "#666666",
-    textTertiary: "#999999",
+    text: "#2C2416",
+    textSecondary: "#5C5346",
+    textTertiary: "#8C8578",
 
-    // Primarios
-    primary: "#007AFF",
-    primaryLight: "#4DA2FF",
-    primaryDark: "#0055CC",
+    // Primarios - Marrón cálido
+    primary: "#8B6914",
+    primaryLight: "#C4A35A",
+    primaryDark: "#6B4F0E",
 
     // Estados
-    error: "#DC3545",
-    success: "#28A745",
-    warning: "#FFC107",
+    error: "#C53030",
+    success: "#2E7D32",
+    warning: "#ED8936",
 
     // Bordes y separadores
-    border: "#E0E0E0",
-    divider: "#EEEEEE",
+    border: "#E8E0D5",
+    divider: "#F0EBE3",
 
     // Especiales
-    favorite: "#FFD700",
-    icon: "#666666",
-    placeholder: "#AAAAAA",
+    favorite: "#D4A017",
+    icon: "#6B5D4D",
+    placeholder: "#A99F93",
   },
 
   dark: {
-    // Fondos
-    background: "#121212",
-    surface: "#1E1E1E",
-    surfaceVariant: "#2C2C2C",
+    // Fondos - Tonos azulados
+    background: "#0D1B2A",
+    surface: "#1B2838",
+    surfaceVariant: "#243447",
 
     // Textos
-    text: "#FFFFFF",
-    textSecondary: "#AAAAAA",
-    textTertiary: "#777777",
+    text: "#E8EEF4",
+    textSecondary: "#A8B8C8",
+    textTertiary: "#6B7D8F",
 
-    // Primarios
-    primary: "#0A84FF",
-    primaryLight: "#4DA2FF",
-    primaryDark: "#0055CC",
+    // Primarios - Azul claro
+    primary: "#5BA4E6",
+    primaryLight: "#7DB8ED",
+    primaryDark: "#3D8AD4",
 
     // Estados
-    error: "#FF453A",
-    success: "#32D74B",
-    warning: "#FFD60A",
+    error: "#F56565",
+    success: "#48BB78",
+    warning: "#ECC94B",
 
     // Bordes y separadores
-    border: "#3A3A3A",
-    divider: "#2C2C2C",
+    border: "#2D3F52",
+    divider: "#243447",
 
     // Especiales
-    favorite: "#FFD700",
-    icon: "#AAAAAA",
-    placeholder: "#666666",
+    favorite: "#F6C23E",
+    icon: "#8BA3BA",
+    placeholder: "#4A5E73",
   },
 } as const;
 

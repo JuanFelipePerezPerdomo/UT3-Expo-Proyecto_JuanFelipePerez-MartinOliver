@@ -1,6 +1,14 @@
+import { SortMenu } from "@/src/components/ui";
 import { useTheme } from "@/src/hooks/useTheme";
+import { Spacing } from "@/src/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
+import { View } from "react-native";
+
+// Versión del SortMenu solo con Fecha y Título (sin Favoritos)
+function SortMenuWithoutFavorites() {
+  return <SortMenu excludeFavorites />;
+}
 
 export default function TabLayout() {
   const { colors } = useTheme();
@@ -28,6 +36,11 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="documents-outline" size={size} color={color} />
           ),
+          headerRight: () => (
+            <View style={{ marginRight: Spacing.md }}>
+              <SortMenu />
+            </View>
+          ),
         }}
       />
       <Tabs.Screen
@@ -36,6 +49,11 @@ export default function TabLayout() {
           title: "Favoritos",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="star-outline" size={size} color={color} />
+          ),
+          headerRight: () => (
+            <View style={{ marginRight: Spacing.md }}>
+              <SortMenuWithoutFavorites />
+            </View>
           ),
         }}
       />

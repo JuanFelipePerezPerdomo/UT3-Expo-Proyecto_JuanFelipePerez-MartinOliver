@@ -2,12 +2,12 @@ import * as ImagePicker from "expo-image-picker";
 import { Alert } from "react-native";
 
 interface ImagePickerOptions {
-    /** Calidad de la imagen (0-1), default: 0.8 */
-    quality?: number;
-    /** Permitir edición después de seleccionar, default: true */
-    allowsEditing?: boolean;
-    /** Aspect ratio para edición [width, height], default: [4, 3] */
-    aspect?: [number, number];
+  /** Calidad de la imagen (0-1), default: 0.8 */
+  quality?: number;
+  /** Permitir edición después de seleccionar, default: true */
+  allowsEditing?: boolean;
+  /** Aspect ratio para edición [width, height], default: [2, 3] (formato portada) */
+  aspect?: [number, number];
 }
 
 interface UseImagePickerResult {
@@ -22,9 +22,9 @@ interface UseImagePickerResult {
 }
 
 const DEFAULT_OPTIONS: ImagePickerOptions = {
-    quality: 0.8,
-    allowsEditing: true,
-    aspect: [4, 3],
+  quality: 0.8,
+  allowsEditing: true,
+  aspect: [2, 3], // Formato portada de libro (más alto que ancho)
 };
 
 /**

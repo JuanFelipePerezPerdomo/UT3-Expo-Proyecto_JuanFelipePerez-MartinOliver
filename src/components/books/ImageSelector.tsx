@@ -25,7 +25,7 @@ export function ImageSelector({
   const { pickFromGallery, takePhoto } = useImagePicker();
 
   const handleSelectImage = () => {
-    Alert.alert("Añadir imagen", "¿De dónde quieres obtener la imagen?", [
+    Alert.alert("Añadir portada", "¿De dónde quieres obtener la imagen?", [
       {
         text: "Cámara",
         onPress: async () => {
@@ -45,7 +45,7 @@ export function ImageSelector({
   };
 
   const handleRemoveImage = () => {
-    Alert.alert("Eliminar imagen", "¿Seguro que quieres eliminar la imagen?", [
+    Alert.alert("Eliminar portada", "¿Seguro que quieres eliminar la imagen?", [
       { text: "Cancelar", style: "cancel" },
       {
         text: "Eliminar",
@@ -58,11 +58,16 @@ export function ImageSelector({
   if (imageUrl) {
     return (
       <View style={styles.container}>
-        <View style={styles.imageContainer}>
+        <View 
+          style={[
+            styles.imageContainer, 
+            { backgroundColor: colors.surfaceVariant }
+          ]}
+        >
           <Image
             source={{ uri: imageUrl }}
             style={styles.image}
-            contentFit="cover"
+            contentFit="contain"
             transition={200}
           />
           {!disabled && (
@@ -81,7 +86,7 @@ export function ImageSelector({
           >
             <Ionicons name="image-outline" size={16} color={colors.primary} />
             <Text style={[styles.changeButtonText, { color: colors.primary }]}>
-              Cambiar imagen
+              Cambiar portada
             </Text>
           </TouchableOpacity>
         )}
@@ -100,7 +105,7 @@ export function ImageSelector({
     >
       <Ionicons name="image-outline" size={32} color={colors.textTertiary} />
       <Text style={[styles.placeholderText, { color: colors.textTertiary }]}>
-        Añadir imagen (opcional)
+        Añadir portada (opcional)
       </Text>
     </TouchableOpacity>
   );
@@ -114,11 +119,11 @@ const styles = StyleSheet.create({
     position: "relative",
     borderRadius: BorderRadius.lg,
     overflow: "hidden",
+    height: 220,
   },
   image: {
     width: "100%",
-    height: 150,
-    borderRadius: BorderRadius.lg,
+    height: "100%",
   },
   removeButton: {
     position: "absolute",

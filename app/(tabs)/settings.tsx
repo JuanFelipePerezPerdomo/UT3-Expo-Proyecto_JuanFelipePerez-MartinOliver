@@ -3,7 +3,7 @@ import { useTheme } from "@/src/hooks";
 import { getRandomBook } from "@/src/services";
 import { useBooksStore, useSettingsStore, useUserStore } from "@/src/stores";
 import { Spacing, Typography } from "@/src/theme";
-import type { SortBy, ThemeMode } from "@/src/types";
+import type { ThemeMode } from "@/src/types";
 import { NICKNAME_MAX_LENGTH, validateNickname } from "@/src/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -17,12 +17,6 @@ import {
   View,
 } from "react-native";
 
-const SORT_OPTIONS: { value: SortBy; label: string; icon: string }[] = [
-  { value: "date", label: "Fecha", icon: "time-outline" },
-  { value: "title", label: "Título", icon: "text-outline" },
-  { value: "favorites", label: "Favoritos primero", icon: "star-outline" },
-];
-
 const THEME_OPTIONS: { value: ThemeMode; label: string; icon: string }[] = [
   { value: "light", label: "Claro", icon: "sunny-outline" },
   { value: "dark", label: "Oscuro", icon: "moon-outline" },
@@ -34,11 +28,9 @@ export default function SettingsScreen() {
 
   const { name, updateName, logout } = useUserStore();
   const {
-    sortBy,
     theme,
     welcomeShown,
     shakeEnabled,
-    setSortBy,
     setTheme,
     setWelcomeShown,
     setShakeEnabled,
@@ -186,50 +178,6 @@ export default function SettingsScreen() {
         )}
       </Card>
 
-      {/* Ordenación */}
-      <Card style={styles.section}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          Ordenar libros por
-        </Text>
-
-        {SORT_OPTIONS.map((option) => (
-          <TouchableOpacity
-            key={option.value}
-            style={styles.optionRow}
-            onPress={() => setSortBy(option.value)}
-          >
-            <View style={styles.optionInfo}>
-              <Ionicons
-                name={option.icon as any}
-                size={20}
-                color={colors.icon}
-              />
-              <Text style={[styles.optionLabel, { color: colors.text }]}>
-                {option.label}
-              </Text>
-            </View>
-            <View
-              style={[
-                styles.radio,
-                {
-                  borderColor:
-                    sortBy === option.value ? colors.primary : colors.border,
-                },
-              ]}
-            >
-              {sortBy === option.value && (
-                <View
-                  style={[
-                    styles.radioInner,
-                    { backgroundColor: colors.primary },
-                  ]}
-                />
-              )}
-            </View>
-          </TouchableOpacity>
-        ))}
-      </Card>
-
       {/* Tema */}
       <Card style={styles.section}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>Tema</Text>
@@ -371,6 +319,7 @@ const styles = StyleSheet.create({
   content: {
     padding: Spacing.lg,
     gap: Spacing.lg,
+    paddingBottom: 100,
   },
   section: {
     gap: Spacing.md,
